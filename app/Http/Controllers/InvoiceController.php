@@ -20,7 +20,11 @@ class InvoiceController extends Controller
         // Handle logo upload
         $logoPath = null;
         if ($request->hasFile('logo')) {
+            /*   নতুন ফাইল আপলোড হলে */
             $logoPath = $request->file('logo')->store('invoices/logos', 'public');
+        } else {
+            /* নতুন ফাইল নেই, আগের path ব্যবহার */
+            $logoPath = $request->logo;
         }
 
         // Create invoice
@@ -69,11 +73,7 @@ class InvoiceController extends Controller
     {
         // Optional: delete related items
         $invoice->items()->delete();
-
-        // Delete logo file if stored
-        if ($invoice->logo_path && Storage::disk('public')->exists($invoice->logo_path)) {
-            Storage::disk('public')->delete($invoice->logo_path);
-        }
+        /* <<<--- Not deleting the physical image because it could still be referenced as the company logo */
         // Delete the invoice
         $invoice->delete();
 

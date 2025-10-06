@@ -14,16 +14,18 @@
                 <label for="logoInput" class="mb-3">
                     <div class="border rounded p-2 text-center"
                         style="cursor: pointer; height: 100px; display: flex; align-items: center; justify-content: center;">
-                        <div id="logoPlaceholder">
+                        <div id="logoPlaceholder" class="{{ Auth::user()->company_logo ? 'd-none' : '' }}">
                             <i class="fas fa-image text-muted"></i>
                             <p class="mb-0 small text-muted">Upload Logo</p>
                         </div>
-                        <img id="logoPreview" src="" class="img-fluid d-none" style="max-height: 90px;">
+                        <img id="logoPreview"
+                            src="{{ Auth::user()->company_logo ? asset('storage/' . Auth::user()->company_logo) : '' }}"
+                            class="img-fluid {{ Auth::user()->company_logo ? '' : 'd-none' }}" style="max-height: 90px;">
                     </div>
                 </label>
 
                 <textarea style="resize: none" class="form-control border small" rows="2" id="companyDetails"
-                    placeholder="who is this from?"></textarea>
+                    placeholder=" Company name"></textarea>
             </div>
             <div class="col-6 text-end">
                 <h1 class="mb-3">INVOICE</h1>
@@ -92,37 +94,44 @@
             </tbody>
         </table>
 
-        <button class="btn btn-sm btn-outline-primary mb-4" id="addItemBtn">
-            <i class="fas fa-plus"></i> Add Item
-        </button>
+        <div class="d-flex justify-content-end mx-4">
+            <button class="btn btn-sm btn-primary mb-4" id="addItemBtn">
+                <i class="fas fa-plus"></i> Add Item
+            </button>
+        </div>
+
 
         <!-- Totals -->
         <div class="row">
             <div class="col-7">
-                <strong>Notes</strong>w
+                <strong>Notes</strong>
                 <textarea class="form-control mt-2" rows="4" id="notes" placeholder="Thank you for your business!"></textarea>
             </div>
             <div class="col-5">
                 <table class="table table-sm">
 
-                    {{-- tax type --}}
+                    {{-- Tax Type --}}
                     <tr>
-                        <div class="mb-3">
-                            <th style="width: 30%"> <label class="form-label small">Tax Type</label></th>
-                            <th style="width: 70%"><select class="form-select form-select-sm" id="taxType">
-                                    <option value="percentage">Percentage (%)</option>
-                                    <option value="flat">Flat Amount</option>
-                                </select></th>
-                        </div>
+                        <th style="width: 30%">
+                            <label for="taxType" class="form-label small">Tax Type</label>
+                        </th>
+                        <td style="width: 70%">
+                            <select class="form-select form-select-sm mb-2" id="taxType">
+                                <option value="percentage">Percentage (%)</option>
+                                <option value="flat">Flat Amount</option>
+                            </select>
+                        </td>
                     </tr>
-                    {{-- tax rate --}}
+
+                    {{-- Tax Rate --}}
                     <tr>
-                        <div class="mb-3">
-                            <th style="width: 30%"> <label class="form-label small">Tax Rate (%)</label>
-                            </th>
-                            <th style="width: 70%"><input type="number" class="form-control form-control-sm"
-                                    id="taxValue" value="0" min="0" step="1"></th>
-                        </div>
+                        <th style="width: 30%">
+                            <label for="taxValue" class="form-label small" id="taxLabel">Tax Rate (%)</label>
+                        </th>
+                        <td style="width: 70%">
+                            <input type="number" class="form-control form-control-sm mb-2 " id="taxValue"
+                                value="0" min="0" step="1">
+                        </td>
                     </tr>
 
 
@@ -169,29 +178,18 @@
             dueDate.setDate(dueDate.getDate() + 30);
             $('#dueDate').val(dueDate.toISOString().split('T')[0]);
 
-            // Logo upload
-            $('#logoInput').on('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        logoBase64 = e.target.result;
-                        $('#logoPreview').attr('src', logoBase64).removeClass('d-none');
-                        $('#logoPlaceholder').hide();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+
+
 
             // Tax type change
             $('#taxType').on('change', function() {
                 const taxType = $(this).val();
                 if (taxType === 'percentage') {
                     $('#taxLabel').text('Tax Rate (%)');
-                    $('#taxValue').attr('max', '100');
+
                 } else {
                     $('#taxLabel').text('Tax Amount');
-                    $('#taxValue').removeAttr('max');
+
                 }
                 calculateTotals();
             });
@@ -203,8 +201,8 @@
                     const row = `
                         <tr class="item-row" data-index="${index}">
                             <td><input type="text" class="form-control form-control-sm item-desc" value="${item.description}" placeholder="Item description"></td>
-                            <td><input type="number" class="form-control form-control-sm item-qty" value="${item.quantity}" min="0"></td>
-                            <td><input type="number" class="form-control form-control-sm item-rate" value="${item.rate}" min="0" step="1"></td>
+                            <td><input type="number" class="form-control form-control-sm item-qty" value="${item.quantity}" min="0" step="any"></td>
+                            <td><input type="number" class="form-control form-control-sm item-rate" value="${item.rate}" min="0" step="any"></td>
                             <td><input type="text" class="form-control form-control-sm item-amount" value="${item.amount.toFixed(2)}" readonly></td>
                             <td><button class="btn btn-sm btn-danger remove-item" data-index="${index}"><i class="fas fa-times"></i></button></td>
                         </tr>
@@ -221,21 +219,30 @@
             });
 
             // Update item quantity in array
+
             $(document).on('input', '.item-qty', function() {
                 const index = $(this).closest('.item-row').data('index');
                 const qty = parseFloat($(this).val()) || 0;
                 invoiceItems[index].quantity = qty;
                 invoiceItems[index].amount = qty * invoiceItems[index].rate;
-                renderItems();
+
+                // শুধু amount field update করুন, পুরো row নয়
+                $(this).closest('.item-row').find('.item-amount').val(invoiceItems[index].amount.toFixed(
+                    2));
+                calculateTotals();
             });
 
-            // Update item rate in array
+
             $(document).on('input', '.item-rate', function() {
                 const index = $(this).closest('.item-row').data('index');
                 const rate = parseFloat($(this).val()) || 0;
                 invoiceItems[index].rate = rate;
                 invoiceItems[index].amount = invoiceItems[index].quantity * rate;
-                renderItems();
+
+                // শুধু amount field update করুন, পুরো row নয়
+                $(this).closest('.item-row').find('.item-amount').val(invoiceItems[index].amount.toFixed(
+                    2));
+                calculateTotals();
             });
 
             // Add new item to array
@@ -290,6 +297,19 @@
             // Tax/Currency change
             $('#taxValue, #currency').on('input change', calculateTotals);
 
+
+            // When new file is selected
+            $('#logoInput').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#logoPreview').attr('src', e.target.result).removeClass('d-none');
+                        $('#logoPlaceholder').hide();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
             // Collect all form data for POST request
             function getFormData() {
                 let subtotal = 0;
@@ -309,10 +329,9 @@
 
                 const total = subtotal + taxAmount;
 
-                // Create FormData
                 const formData = new FormData();
 
-                // Append regular fields
+                // Regular fields
                 formData.append('from_company', $('#companyDetails').val());
                 formData.append('invoice_number', $('#invoiceNumber').val());
                 formData.append('invoice_date', $('#invoiceDate').val());
@@ -330,13 +349,16 @@
                 formData.append('tax_amount', taxAmount);
                 formData.append('total', total);
 
-                // Append logo file if selected
+                // Logo: only append if user selected new file
                 const logoFile = $('#logoInput')[0].files[0];
                 if (logoFile) {
-                    formData.append('logo', logoFile); // Here is the file
+                    formData.append('logo', logoFile);
+                } else if ("{{ auth()->user()->company_logo }}") {
+                    // If no new file selected, send existing logo path
+                    formData.append('logo', "{{ auth()->user()->company_logo }}");
                 }
 
-                // Append items (convert array to JSON string)
+                // Append items
                 formData.append('items', JSON.stringify(invoiceItems));
 
                 return formData;
