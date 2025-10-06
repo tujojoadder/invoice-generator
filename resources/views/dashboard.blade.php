@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Invoice Generator</title>
+    @vite('resources/css/app.css')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -15,45 +16,81 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-2 bg-dark text-white p-3" style="min-height: 100vh; position: fixed; width: 16.6667%;">
-                <h5 class="mb-4">Settings</h5>
+            <div class="col-md-2 bg-dark text-white d-flex flex-column justify-content-between p-3"
+                style="min-height: 100vh; position: fixed; width: 16.6667%;">
 
-                <div class="mb-3">
-                    <label class="form-label small">Currency</label>
-                    <select class="form-select form-select-sm" id="currency">
-                        <option value="$">USD ($)</option>
-                        <option value="€">EUR (€)</option>
-                        <option value="£">GBP (£)</option>
-                        <option value="৳">BDT (৳)</option>
-                        <option value="₹">INR (₹)</option>
-                        <option value="¥">JPY (¥)</option>
-                    </select>
+                {{-- Top Section: User Info --}}
+                <div>
+                    <div class="d-flex align-items-center mb-4 border-bottom border-secondary pb-3">
+                        <div class="me-2">
+                            <i class="fas fa-user-circle fa-2x text-light"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 text-white">{{ Auth::user()->name }}</h6>
+                            <small class=" text-white">{{ Auth::user()->email }}</small>
+                        </div>
+                    </div>
+
+                    {{-- Navigation Menu --}}
+                    <nav class="mb-4">
+                        <ul class="nav flex-column">
+                            <li class="nav-item mb-2">
+                                <a href="{{ url('/') }}"
+                                    class="nav-link text-white d-flex align-items-center {{ request()->is('/') ? 'active fw-bold' : '' }}">
+                                    <i class="fas fa-home me-2"></i> Home
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a href="{{ url('/history') }}"
+                                    class="nav-link text-white d-flex align-items-center {{ request()->is('history') ? 'active fw-bold' : '' }}">
+                                    <i class="fas fa-history me-2"></i> History
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    {{-- Divider --}}
+                    <hr class="border-secondary">
+
+                    {{-- Settings Section (only for Home page) --}}
+                    @if (request()->is('/'))
+                        <div>
+                            <label class="form-label small">Currency</label>
+                            <select class="form-select form-select-sm mb-3" id="currency">
+                                <option value="$">USD ($)</option>
+                                <option value="€">EUR (€)</option>
+                                <option value="£">GBP (£)</option>
+                                <option value="৳">BDT (৳)</option>
+                                <option value="₹">INR (₹)</option>
+                                <option value="¥">JPY (¥)</option>
+                            </select>
+
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-success btn-sm" id="downloadPdfBtn">
+                                    <i class="fas fa-download me-1"></i> Download PDF
+                                </button>
+                                <button class="btn btn-outline-light btn-sm" id="printBtn">
+                                    <i class="fas fa-print me-1"></i> Print
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm" id="resetBtn">
+                                    <i class="fas fa-redo me-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
-
-
-                <hr class="border-secondary">
-
-                <div class="d-grid gap-2">
-                    <button class="btn btn-success btn-sm" id="downloadPdfBtn">
-                        <i class="fas fa-download me-1"></i> Download PDF
-                    </button>
-                    <button class="btn btn-outline-light btn-sm" id="printBtn">
-                        <i class="fas fa-print me-1"></i> Print
-                    </button>
-                    <button class="btn btn-outline-danger btn-sm" id="resetBtn">
-                        <i class="fas fa-redo me-1"></i> Reset
-                    </button>
-
-                    {{-- logout --}}
+                {{-- Bottom Section: Logout --}}
+                <div class="mt-auto">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="btn btn-dark btn-sm">
-                            <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        <button type="submit" class="btn btn-outline-light btn-sm w-100">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
                         </button>
                     </form>
                 </div>
             </div>
+
 
             <!-- Main Invoice -->
             <div class="p-4" style="margin-left: 16.6667%; width: 83.3333%;">
@@ -62,7 +99,9 @@
 
                     <!-- Header -->
                     <div class="row mb-4">
-                        <div class="col-6">
+                        <div class="col-6 ">
+
+                            {{-- upload logo --}}
                             <input type="file" id="logoInput" class="d-none" accept="image/*">
                             <label for="logoInput" class="mb-3">
                                 <div class="border rounded p-2 text-center"
@@ -158,7 +197,7 @@
                     <!-- Totals -->
                     <div class="row">
                         <div class="col-7">
-                            <strong>Notes</strong>
+                            <strong>Notes</strong>w
                             <textarea class="form-control mt-2" rows="4" id="notes" placeholder="Thank you for your business!"></textarea>
                         </div>
                         <div class="col-5">
@@ -372,27 +411,39 @@
 
                 const total = subtotal + taxAmount;
 
-                return {
-                    logo: logoBase64,
-                    from_company: $('#companyDetails').val(),
-                    invoice_number: $('#invoiceNumber').val(),
-                    invoice_date: $('#invoiceDate').val(),
-                    payment_terms: $('#paymentTerms').val(),
-                    due_date: $('#dueDate').val(),
-                    po_number: $('#poNumber').val(),
-                    bill_to: $('#billTo').val(),
-                    phone_number: $('#phoneNumber').val(),
-                    ship_to: $('#shipTo').val(),
-                    items: invoiceItems,
-                    notes: $('#notes').val(),
-                    currency: $('#currency').val(),
-                    tax_type: taxType,
-                    tax_value: taxValue,
-                    subtotal: subtotal,
-                    tax_amount: taxAmount,
-                    total: total
-                };
+                // Create FormData
+                const formData = new FormData();
+
+                // Append regular fields
+                formData.append('from_company', $('#companyDetails').val());
+                formData.append('invoice_number', $('#invoiceNumber').val());
+                formData.append('invoice_date', $('#invoiceDate').val());
+                formData.append('payment_terms', $('#paymentTerms').val());
+                formData.append('due_date', $('#dueDate').val());
+                formData.append('po_number', $('#poNumber').val());
+                formData.append('bill_to', $('#billTo').val());
+                formData.append('phone_number', $('#phoneNumber').val());
+                formData.append('ship_to', $('#shipTo').val());
+                formData.append('notes', $('#notes').val());
+                formData.append('currency', $('#currency').val());
+                formData.append('tax_type', taxType);
+                formData.append('tax_value', taxValue);
+                formData.append('subtotal', subtotal);
+                formData.append('tax_amount', taxAmount);
+                formData.append('total', total);
+
+                // Append logo file if selected
+                const logoFile = $('#logoInput')[0].files[0];
+                if (logoFile) {
+                    formData.append('logo', logoFile); // Here is the file
+                }
+
+                // Append items (convert array to JSON string)
+                formData.append('items', JSON.stringify(invoiceItems));
+
+                return formData;
             }
+
 
             // Print
             $('#printBtn').on('click', function() {
@@ -406,12 +457,12 @@
 
                 const formData = getFormData();
 
-                // POST request to save invoice
                 $.ajax({
-                    url: '/save-invoice', // Change this to your Laravel route
+                    url: '/save-invoice',
                     type: 'POST',
-                    data: JSON.stringify(formData),
-                    contentType: 'application/json',
+                    data: formData,
+                    processData: false, // Important for FormData
+                    contentType: false, // Important for FormData
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
@@ -434,6 +485,7 @@
                     }
                 });
             });
+
 
             // Generate PDF
             function generatePDF(button) {

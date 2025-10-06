@@ -18,8 +18,8 @@ class InvoiceController extends Controller
 
         // Handle logo upload
         $logoPath = null;
-        if ($request->hasFile('image')) {
-            $logoPath = $request->file('image')->store('invoices/logos', 'public');
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('invoices/logos', 'public');
         }
 
         // Create invoice
@@ -44,7 +44,7 @@ class InvoiceController extends Controller
         ]);
 
         // Save items
-        $items = $request->items;
+        $items = json_decode($request->items, true);
         foreach ($items as $item) {
             $invoice->items()->create($item);
         }
