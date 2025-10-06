@@ -26,8 +26,13 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/', function () {
-        return view('dashboard');
+        return view('home');
     })->middleware('auth');
+Route::get('/history', function () {
+        return view('history');
+    })->name('history');
+
+    
     Route::post('/save-invoice', [InvoiceController::class, 'store'])->name('invoices.store');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
