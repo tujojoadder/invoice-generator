@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
@@ -54,5 +55,28 @@ class InvoiceController extends Controller
             'invoice_id' => $invoice->id,
             'message' => 'Invoice saved successfully'
         ]);
+    }
+    public function history()
+    {
+        // সব invoices কে retrieve করা
+        $invoices = Invoice::with('items')->latest()->get();
+
+        return view('history', compact('invoices'));
+    }
+
+
+    public function destroy(Invoice $invoice)
+    {
+        // Optional: delete related items
+        $invoice->items()->delete();
+
+        // Delete logo file if stored
+        if ($invoice->logo_path && Storage::disk('public')->exists($invoice->logo_path)) {
+            Storage::disk('public')->delete($invoice->logo_path);
+        }
+        // Delete the invoice
+        $invoice->delete();
+
+        return redirect()->route('invoices.history')->with('success', 'Invoice deleted successfully.');
     }
 }

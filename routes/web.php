@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,11 +29,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/', function () {
         return view('home');
     })->middleware('auth');
-Route::get('/history', function () {
-        return view('history');
-    })->name('history');
+    Route::get('/history', [InvoiceController::class, 'history'])->name('invoices.history');
 
-    
+
     Route::post('/save-invoice', [InvoiceController::class, 'store'])->name('invoices.store');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
+    Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+    // Edit Invoice
+    Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
+    // Update Invoice
+    Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
+    // Delete Invoice
+    Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+    /* Profile Routes */
+    Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
 });
