@@ -14,7 +14,8 @@
     <div class="container-fluid">
         <div class="row">
             {{-- Sidebar --}}
-            @include('partials.sidebar')
+            @include('partials.sidebar', ['invoice' => $invoice ?? null])
+
 
             {{-- Main Content --}}
             <div class="p-4" style="margin-left:16.6667%; width:83.3333%;">

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -34,10 +33,7 @@ class ProfileController extends Controller
 
         // Handle company logo upload
         if ($request->hasFile('company_logo')) {
-            // Delete old logo if exists
-            if ($user->company_logo && Storage::disk('public')->exists($user->company_logo)) {
-                Storage::disk('public')->delete($user->company_logo);
-            }
+        
             $user->company_logo = $request->file('company_logo')->store('company_logos', 'public');
         }
 

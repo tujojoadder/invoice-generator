@@ -15,19 +15,23 @@ class Invoice extends Model
     protected $fillable = [
         'invoice_number',
         'from_company',
-        'bill_to',
-        'phone_number',
-        'ship_to',
-        'po_number',
-        'payment_terms',
         'invoice_date',
+        'payment_terms',
         'due_date',
+        'po_number',
+        'bill_to',
+        'ship_to',
+        'phone_number',
         'currency',
         'tax_type',
         'tax_value',
+
+
         'subtotal',
         'tax_amount',
         'total',
+
+        
         'notes',
         'logo_path'
     ];

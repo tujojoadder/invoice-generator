@@ -15,6 +15,8 @@ class InvoiceController extends Controller
             'invoice_number' => 'required|string|max:50|unique:invoices,invoice_number',
             'invoice_date' => 'nullable|date',
             'due_date' => 'nullable|date',
+            'logo' => 'required', // path or file
+
         ]);
 
         // Handle logo upload
@@ -60,6 +62,63 @@ class InvoiceController extends Controller
             'message' => 'Invoice saved successfully'
         ]);
     }
+
+
+    public function update(Request $request, $id)
+    {
+       
+         // Find existing invoice
+       $invoice = Invoice::where('invoice_number', $id)->firstOrFail();
+        // Validation
+        $request->validate([
+            'invoice_number' => 'required|string|max:50',
+            'invoice_date' => 'nullable|date',
+            'due_date' => 'nullable|date',
+            'logo' => 'nullable', 
+        ]);
+
+        // Handle logo upload
+          // Handle logo upload
+        $logoPath = $invoice->logo_path; // default old logo
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('invoices/logos', 'public');
+        }
+
+
+       // Update invoice
+    $invoice->update([
+        'invoice_number' => $request->invoice_number,
+        'from_company'   => $request->from_company,
+        'bill_to'        => $request->bill_to,
+        'phone_number'   => $request->phone_number,
+        'ship_to'        => $request->ship_to,
+        'po_number'      => $request->po_number,
+        'payment_terms'  => $request->payment_terms,
+        'invoice_date'   => $request->invoice_date,
+        'due_date'       => $request->due_date,
+        'currency'       => $request->currency,
+        'tax_type'       => $request->tax_type,
+        'tax_value'      => $request->tax_value,
+        'subtotal'       => $request->subtotal,
+        'tax_amount'     => $request->tax_amount,
+        'total'          => $request->total,
+        'notes'          => $request->notes,
+        'logo_path'      => $logoPath,
+    ]);
+
+    // Update items
+    $invoice->items()->delete(); // পুরানো item ডিলিট করবো
+    $items = json_decode($request->items, true);
+    foreach ($items as $item) {
+        $invoice->items()->create($item);
+    }
+
+    return response()->json([
+        'success' => true,
+        'invoice_id' => $invoice->id,
+        'message' => 'Invoice updated successfully'
+    ]);
+    }
     public function history()
     {
         // সব invoices কে retrieve করা
@@ -78,5 +137,12 @@ class InvoiceController extends Controller
         $invoice->delete();
 
         return redirect()->route('invoices.history')->with('success', 'Invoice deleted successfully.');
+    }
+
+
+    public function edit(Invoice $invoice)
+    {
+        $invoice->load('items'); // Load related items
+        return view('edit_invoice', compact('invoice'));
     }
 }

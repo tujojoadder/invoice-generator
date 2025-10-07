@@ -40,7 +40,7 @@ Route::middleware('auth')->group(function () {
     // Edit Invoice
     Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
     // Update Invoice
-    Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
+    Route::put('/invoices/{id}', [InvoiceController::class, 'update'])->name('invoices.update');
     // Delete Invoice
     Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 

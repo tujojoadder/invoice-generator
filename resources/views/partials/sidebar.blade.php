@@ -46,16 +46,16 @@
         <hr class="border-secondary">
 
         {{-- Settings Section (only for Home page) --}}
-        @if (request()->is('/'))
+        @if (request()->is('/') || request()->is('invoices/*/edit'))
             <div>
                 <label class="form-label small">Currency</label>
                 <select class="form-select form-select-sm mb-3" id="currency">
-                    <option value="$">USD ($)</option>
-                    <option value="€">EUR (€)</option>
-                    <option value="£">GBP (£)</option>
-                    <option value="৳">BDT (৳)</option>
-                    <option value="₹">INR (₹)</option>
-                    <option value="¥">JPY (¥)</option>
+                    <option value="$" {{ $invoice?->currency == '$' ? 'selected' : '' }}>USD ($)</option>
+                    <option value="€" {{ $invoice?->currency == '€' ? 'selected' : '' }}>EUR (€)</option>
+                    <option value="£" {{ $invoice?->currency == '£' ? 'selected' : '' }}>GBP (£)</option>
+                    <option value="৳" {{ $invoice?->currency == '৳' ? 'selected' : '' }}>BDT (৳)</option>
+                    <option value="₹" {{ $invoice?->currency == '₹' ? 'selected' : '' }}>INR (₹)</option>
+
                 </select>
 
                 <div class="d-grid gap-2">

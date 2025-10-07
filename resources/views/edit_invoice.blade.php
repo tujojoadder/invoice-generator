@@ -14,18 +14,13 @@
                 <label for="logoInput" class="mb-3">
                     <div class="border rounded p-2 text-center"
                         style="cursor: pointer; height: 100px; display: flex; align-items: center; justify-content: center;">
-                        <div id="logoPlaceholder" class="{{ Auth::user()->company_logo ? 'd-none' : '' }}">
-                            <i class="fas fa-image text-muted"></i>
-                            <p class="mb-0 small text-muted">Upload Logo</p>
-                        </div>
-                        <img id="logoPreview"
-                            src="{{ Auth::user()->company_logo ? asset('storage/' . Auth::user()->company_logo) : '' }}"
-                            class="img-fluid {{ Auth::user()->company_logo ? '' : 'd-none' }}" style="max-height: 90px;">
+                        <img id="logoPreview" src="{{ asset('storage/' . $invoice->logo_path) }}" class="img-fluid"
+                            style="max-height: 90px;">
                     </div>
                 </label>
 
                 <textarea style="resize: none" class="form-control border small" rows="2" id="companyDetails"
-                    placeholder=" Company name"></textarea>
+                    placeholder=" Company name">{{ $invoice->from_company }}</textarea>
             </div>
             <div class="col-6 text-end">
                 <h1 class="mb-3">INVOICE</h1>
@@ -33,30 +28,36 @@
                     <tr>
                         <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="Invoice #">
                         </td>
-                        <td><input type="text" class="form-control form-control-sm" value="INV-001" id="invoiceNumber">
+                        <td><input type="text" class="form-control form-control-sm"
+                                value="{{ $invoice->invoice_number }}" id="invoiceNumber" readonly>
                         </td>
                     </tr>
                     <tr>
                         <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="Date"></td>
-                        <td><input type="date" class="form-control form-control-sm" id="invoiceDate">
+                        <td><input type="date"
+                                value="{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}"
+                                class="form-control form-control-sm" id="invoiceDate">
                         </td>
                     </tr>
                     <tr>
                         <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
                                 value="Payment Terms"></td>
-                        <td><input type="text" class="form-control form-control-sm" value="Net 30" id="paymentTerms">
+                        <td><input type="text" class="form-control form-control-sm" value="{{ $invoice->payment_terms }}"
+                                id="paymentTerms">
                         </td>
                     </tr>
                     <tr>
                         <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="Due Date">
                         </td>
-                        <td><input type="date" class="form-control form-control-sm" id="dueDate">
+                        <td><input type="date" class="form-control form-control-sm" id="dueDate"
+                                value="{{ \Carbon\Carbon::parse($invoice->due_date)->format('Y-m-d') }}">
                         </td>
                     </tr>
                     <tr>
                         <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="PO Number">
                         </td>
-                        <td><input type="text" class="form-control form-control-sm" id="poNumber">
+                        <td><input type="text" class="form-control form-control-sm" id="poNumber"
+                                value="{{ $invoice->po_number }}">
                         </td>
                     </tr>
                 </table>
@@ -69,12 +70,13 @@
         <div class="row mb-4">
             <div class="col-6">
                 <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold" value="Bill To">
-                <textarea style="resize: none" class="form-control" rows="2" id="billTo" placeholder="who is this to?"></textarea>
-                <input type="text" class="form-control form-control-sm mt-3" id="phoneNumber" placeholder="Phone Number">
+                <textarea style="resize: none" class="form-control" rows="2" id="billTo" placeholder="who is this to?">{{ $invoice->bill_to }}</textarea>
+                <input type="text" class="form-control form-control-sm mt-3" id="phoneNumber" placeholder="Phone Number"
+                    value="{{ $invoice->phone_number }}">
             </div>
             <div class="col-6">
                 <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold" value="Ship To">
-                <textarea style="resize: none" class="form-control" rows="2" id="shipTo" placeholder="(optional)"></textarea>
+                <textarea style="resize: none" class="form-control" rows="2" id="shipTo" placeholder="(optional)">{{ $invoice->ship_to }}</textarea>
             </div>
         </div>
 
@@ -105,7 +107,7 @@
         <div class="row">
             <div class="col-7">
                 <strong>Notes</strong>
-                <textarea class="form-control mt-2" rows="4" id="notes" placeholder="Thank you for your business!"></textarea>
+                <textarea class="form-control mt-2" rows="4" id="notes" placeholder="Thank you for your business!">{{ $invoice->notes }}</textarea>
             </div>
             <div class="col-5">
                 <table class="table table-sm">
@@ -117,8 +119,10 @@
                         </th>
                         <td style="width: 70%">
                             <select class="form-select form-select-sm mb-2" id="taxType">
-                                <option value="percentage">Percentage (%)</option>
-                                <option value="flat">Flat Amount</option>
+                                <option value="percentage" {{ $invoice->tax_type == 'percentage' ? 'selected' : '' }}>
+                                    Percentage (%)</option>
+                                <option value="flat" {{ $invoice->tax_type == 'flat' ? 'selected' : '' }}>Flat Amount
+                                </option>
                             </select>
                         </td>
                     </tr>
@@ -130,7 +134,7 @@
                         </th>
                         <td style="width: 70%">
                             <input type="number" class="form-control form-control-sm mb-2 " id="taxValue"
-                                value="0" min="0" step="1">
+                                value="{{ $invoice->tax_value }}" min="0" step="1">
                         </td>
                     </tr>
 
@@ -162,21 +166,29 @@
     <script>
         $(document).ready(function() {
             // Items array - this will store all invoice items
-            let invoiceItems = [{
-                description: '',
-                quantity: 1,
-                rate: 0,
-                amount: 0
-            }];
+            let invoiceItems = [];
+
+            @if ($invoice->items->count() > 0)
+                @foreach ($invoice->items as $item)
+                    invoiceItems.push({
+                        description: "{{ $item['description'] }}",
+                        quantity: {{ $item['quantity'] }},
+                        rate: {{ $item['rate'] }},
+                        amount: {{ $item['amount'] }}
+                    });
+                    calculateTotals();
+                @endforeach
+            @else
+                invoiceItems.push({
+                    description: '',
+                    quantity: 1,
+                    rate: 0,
+                    amount: 0
+                });
+            @endif
 
             let logoBase64 = '';
 
-            // Set dates
-            const today = new Date().toISOString().split('T')[0];
-            $('#invoiceDate').val(today);
-            const dueDate = new Date();
-            dueDate.setDate(dueDate.getDate() + 30);
-            $('#dueDate').val(dueDate.toISOString().split('T')[0]);
 
 
 
@@ -186,10 +198,10 @@
                 const taxType = $(this).val();
                 if (taxType === 'percentage') {
                     $('#taxLabel').text('Tax Rate (%)');
-                   
+
                 } else {
                     $('#taxLabel').text('Tax Amount');
-             
+
                 }
                 calculateTotals();
             });
@@ -304,8 +316,8 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        $('#logoPreview').attr('src', e.target.result).removeClass('d-none');
-                        $('#logoPlaceholder').hide();
+                        $('#logoPreview').attr('src', e.target.result);
+
                     };
                     reader.readAsDataURL(file);
                 }
@@ -353,9 +365,9 @@
                 const logoFile = $('#logoInput')[0].files[0];
                 if (logoFile) {
                     formData.append('logo', logoFile);
-                } else if ("{{ auth()->user()->company_logo }}") {
+                } else {
                     // If no new file selected, send existing logo path
-                    formData.append('logo', "{{ auth()->user()->company_logo }}");
+                    formData.append('logo', "{{ $invoice->logo_path }}");
                 }
 
                 // Append items
@@ -376,9 +388,11 @@
                 button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
 
                 const formData = getFormData();
+                formData.append('_method', 'PUT');
+
 
                 $.ajax({
-                    url: '/save-invoice',
+                    url: '/invoices/' + $('#invoiceNumber').val(),
                     type: 'POST',
                     data: formData,
                     processData: false, // Important for FormData
