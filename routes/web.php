@@ -29,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/', function () {
         return view('home');
     })->middleware('auth');
+
+    /* history */
     Route::get('/history', [InvoiceController::class, 'history'])->name('invoices.history');
 
 
@@ -44,6 +46,8 @@ Route::middleware('auth')->group(function () {
     // Delete Invoice
     Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
+    // routes/web.php
+    Route::get('/invoices/{invoice}/view', [InvoiceController::class, 'view'])->name('invoices.view');
     /* Profile Routes */
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');

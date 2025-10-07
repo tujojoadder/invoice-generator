@@ -3,158 +3,173 @@
 @section('title', 'Home')
 
 @section('content')
-    <div id="invoiceContent" class="  rounded shadow p-5  border-top " style="max-width: 900px; margin: 0 auto;">
+    <div class="container my-4" style="max-width: 950px;">
+        <!-- 🔹 Top Action Buttons -->
+        <div class="d-flex mx-3 justify-content-between align-items-center mb-4">
+            <a href="{{ route('invoices.history') }}" class="btn btn-secondary me-2">
+                ← Back to History
+            </a>
 
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col-6 ">
-
-                {{-- upload logo --}}
-                <input type="file" id="logoInput" class="d-none" accept="image/*">
-                <label for="logoInput" class="mb-3">
-                    <div class="border rounded p-2 text-center"
-                        style="cursor: pointer; height: 100px; display: flex; align-items: center; justify-content: center;">
-                        <img id="logoPreview" src="{{ asset('storage/' . $invoice->logo_path) }}" class="img-fluid"
-                            style="max-height: 90px;">
-                    </div>
-                </label>
-
-                <textarea style="resize: none" class="form-control border small" rows="2" id="companyDetails"
-                    placeholder=" Company name">{{ $invoice->from_company }}</textarea>
-            </div>
-            <div class="col-6 text-end">
-                <h1 class="mb-3">INVOICE</h1>
-                <table class="table table-sm table-borderless ms-auto" style="max-width: 300px;">
-                    <tr>
-                        <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="Invoice #">
-                        </td>
-                        <td><input type="text" class="form-control form-control-sm"
-                                value="{{ $invoice->invoice_number }}" id="invoiceNumber" readonly>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="Date"></td>
-                        <td><input type="date"
-                                value="{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}"
-                                class="form-control form-control-sm" id="invoiceDate">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
-                                value="Payment Terms"></td>
-                        <td><input type="text" class="form-control form-control-sm" value="{{ $invoice->payment_terms }}"
-                                id="paymentTerms">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="Due Date">
-                        </td>
-                        <td><input type="date" class="form-control form-control-sm" id="dueDate"
-                                value="{{ \Carbon\Carbon::parse($invoice->due_date)->format('Y-m-d') }}">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="PO Number">
-                        </td>
-                        <td><input type="text" class="form-control form-control-sm" id="poNumber"
-                                value="{{ $invoice->po_number }}">
-                        </td>
-                    </tr>
-                </table>
-            </div>
         </div>
+        <div id="invoiceContent" class="  rounded shadow p-5  border-top " >
 
-        <hr>
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-6 ">
 
-        <!-- Bill To / Ship To -->
-        <div class="row mb-4">
-            <div class="col-6">
-                <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold" value="Bill To">
-                <textarea style="resize: none" class="form-control" rows="2" id="billTo" placeholder="who is this to?">{{ $invoice->bill_to }}</textarea>
-                <input type="text" class="form-control form-control-sm mt-3" id="phoneNumber" placeholder="Phone Number"
-                    value="{{ $invoice->phone_number }}">
+                    {{-- upload logo --}}
+                    <input type="file" id="logoInput" class="d-none" accept="image/*">
+                    <label for="logoInput" class="mb-3">
+                        <div class=" rounded p-2 text-center"
+                            style="cursor: pointer; height: 100px; display: flex; align-items: center; justify-content: center;">
+                            <img id="logoPreview" src="{{ asset('storage/' . $invoice->logo_path) }}" class="img-fluid"
+                                style="max-height: 90px;">
+                        </div>
+                    </label>
+
+                    <textarea style="resize: none" class="form-control border small" rows="2" id="companyDetails"
+                        placeholder=" Company name">{{ $invoice->from_company }}</textarea>
+                </div>
+                <div class="col-6 text-end">
+                    <h1 class="mb-3">INVOICE</h1>
+                    <table class="table table-sm table-borderless ms-auto" style="max-width: 300px;">
+                        <tr>
+                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
+                                    value="Invoice #">
+                            </td>
+                            <td><input type="text" class="form-control form-control-sm"
+                                    value="{{ $invoice->invoice_number }}" id="invoiceNumber" readonly>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="Date">
+                            </td>
+                            <td><input type="date"
+                                    value="{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}"
+                                    class="form-control form-control-sm" id="invoiceDate">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
+                                    value="Payment Terms"></td>
+                            <td><input type="text" class="form-control form-control-sm"
+                                    value="{{ $invoice->payment_terms }}" id="paymentTerms">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
+                                    value="Due Date">
+                            </td>
+                            <td><input type="date" class="form-control form-control-sm" id="dueDate"
+                                    value="{{ \Carbon\Carbon::parse($invoice->due_date)->format('Y-m-d') }}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
+                                    value="PO Number">
+                            </td>
+                            <td><input type="text" class="form-control form-control-sm" id="poNumber"
+                                    value="{{ $invoice->po_number }}">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
-            <div class="col-6">
-                <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold" value="Ship To">
-                <textarea style="resize: none" class="form-control" rows="2" id="shipTo" placeholder="(optional)">{{ $invoice->ship_to }}</textarea>
+
+            <hr>
+
+            <!-- Bill To / Ship To -->
+            <div class="row mb-4">
+                <div class="col-6">
+                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold" value="Bill To">
+                    <textarea style="resize: none" class="form-control" rows="2" id="billTo" placeholder="who is this to?">{{ $invoice->bill_to }}</textarea>
+                    <input type="text" class="form-control form-control-sm mt-3" id="phoneNumber"
+                        placeholder="Phone Number" value="{{ $invoice->phone_number }}">
+                </div>
+                <div class="col-6">
+                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold" value="Ship To">
+                    <textarea style="resize: none" class="form-control" rows="2" id="shipTo" placeholder="(optional)">{{ $invoice->ship_to }}</textarea>
+                </div>
             </div>
+
+            <!-- Items -->
+            <table class="table">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 50%">Description</th>
+                        <th style="width: 12%">Qty</th>
+                        <th style="width: 15%">Rate</th>
+                        <th style="width: 18%">Amount</th>
+                        <th style="width: 5%"></th>
+                    </tr>
+                </thead>
+                <tbody id="itemsTable">
+                    <!-- Items will be rendered here from array -->
+                </tbody>
+            </table>
+
+            <div class="d-flex justify-content-end mx-4">
+                <button class="btn btn-sm btn-primary mb-4" id="addItemBtn">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+            </div>
+
+
+            <!-- Totals -->
+            <div class="row">
+                <div class="col-7">
+                    <strong>Notes</strong>
+                    <textarea class="form-control mt-2" rows="4" id="notes" placeholder="Thank you for your business!">{{ $invoice->notes }}</textarea>
+                </div>
+                <div class="col-5">
+                    <table class="table table-sm">
+
+                        {{-- Tax Type --}}
+                        <tr>
+                            <th style="width: 30%">
+                                <label for="taxType" class="form-label small">Tax Type</label>
+                            </th>
+                            <td style="width: 70%">
+                                <select class="form-select form-select-sm mb-2" id="taxType">
+                                    <option value="percentage" {{ $invoice->tax_type == 'percentage' ? 'selected' : '' }}>
+                                        Percentage (%)</option>
+                                    <option value="flat" {{ $invoice->tax_type == 'flat' ? 'selected' : '' }}>Flat
+                                        Amount
+                                    </option>
+                                </select>
+                            </td>
+                        </tr>
+
+
+                        {{-- Tax Rate --}}
+                        <tr>
+                            <th style="width: 30%">
+                                <label for="taxValue" class="form-label small" id="taxLabel">Tax Rate (%)</label>
+                            </th>
+                            <td style="width: 70%">
+                                <input type="number" class="form-control form-control-sm mb-2 " id="taxValue"
+                                    value="{{ $invoice->tax_value }}" min="0" step="1">
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td><strong>Subtotal:</strong></td>
+                            <td class="text-end" id="subtotal">$0.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tax <span id="displayTax"></span>:</strong></td>
+                            <td class="text-end" id="taxAmount">$0.00</td>
+                        </tr>
+                        <tr class="table-dark">
+                            <td><strong>TOTAL:</strong></td>
+                            <td class="text-end"><strong id="total">$0.00</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
         </div>
-
-        <!-- Items -->
-        <table class="table">
-            <thead class="table-dark">
-                <tr>
-                    <th style="width: 50%">Description</th>
-                    <th style="width: 12%">Qty</th>
-                    <th style="width: 15%">Rate</th>
-                    <th style="width: 18%">Amount</th>
-                    <th style="width: 5%"></th>
-                </tr>
-            </thead>
-            <tbody id="itemsTable">
-                <!-- Items will be rendered here from array -->
-            </tbody>
-        </table>
-
-        <div class="d-flex justify-content-end mx-4">
-            <button class="btn btn-sm btn-primary mb-4" id="addItemBtn">
-                <i class="fas fa-plus"></i> Add Item
-            </button>
-        </div>
-
-
-        <!-- Totals -->
-        <div class="row">
-            <div class="col-7">
-                <strong>Notes</strong>
-                <textarea class="form-control mt-2" rows="4" id="notes" placeholder="Thank you for your business!">{{ $invoice->notes }}</textarea>
-            </div>
-            <div class="col-5">
-                <table class="table table-sm">
-
-                    {{-- Tax Type --}}
-                    <tr>
-                        <th style="width: 30%">
-                            <label for="taxType" class="form-label small">Tax Type</label>
-                        </th>
-                        <td style="width: 70%">
-                            <select class="form-select form-select-sm mb-2" id="taxType">
-                                <option value="percentage" {{ $invoice->tax_type == 'percentage' ? 'selected' : '' }}>
-                                    Percentage (%)</option>
-                                <option value="flat" {{ $invoice->tax_type == 'flat' ? 'selected' : '' }}>Flat Amount
-                                </option>
-                            </select>
-                        </td>
-                    </tr>
-
-                    {{-- Tax Rate --}}
-                    <tr>
-                        <th style="width: 30%">
-                            <label for="taxValue" class="form-label small" id="taxLabel">Tax Rate (%)</label>
-                        </th>
-                        <td style="width: 70%">
-                            <input type="number" class="form-control form-control-sm mb-2 " id="taxValue"
-                                value="{{ $invoice->tax_value }}" min="0" step="1">
-                        </td>
-                    </tr>
-
-
-                    <tr>
-                        <td><strong>Subtotal:</strong></td>
-                        <td class="text-end" id="subtotal">$0.00</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Tax <span id="displayTax"></span>:</strong></td>
-                        <td class="text-end" id="taxAmount">$0.00</td>
-                    </tr>
-                    <tr class="table-dark">
-                        <td><strong>TOTAL:</strong></td>
-                        <td class="text-end"><strong id="total">$0.00</strong></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
     </div>
 
 
@@ -165,6 +180,8 @@
 
     <script>
         $(document).ready(function() {
+
+
             // Items array - this will store all invoice items
             let invoiceItems = [];
 

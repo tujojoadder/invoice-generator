@@ -12,7 +12,7 @@
                 {{-- upload logo --}}
                 <input type="file" id="logoInput" class="d-none" accept="image/*">
                 <label for="logoInput" class="mb-3">
-                    <div class="border rounded p-2 text-center"
+                    <div class="border  p-2 text-center"
                         style="cursor: pointer; height: 100px; display: flex; align-items: center; justify-content: center;">
                         <div id="logoPlaceholder" class="{{ Auth::user()->company_logo ? 'd-none' : '' }}">
                             <i class="fas fa-image text-muted"></i>

@@ -145,4 +145,10 @@ class InvoiceController extends Controller
         $invoice->load('items'); // Load related items
         return view('edit_invoice', compact('invoice'));
     }
+
+    public function view($id)
+    {
+        $invoice = Invoice::with('items')->findOrFail($id);
+        return view('invoices.view', compact('invoice'));
+    }
 }
