@@ -31,8 +31,8 @@ Route::middleware('auth')->group(function () {
     })->middleware('auth');
 
     /* history */
-    Route::get('/history', [InvoiceController::class, 'history'])->name('invoices.history');
-
+   Route::get('/history', [InvoiceController::class, 'history'])->name('invoices.history');
+Route::get('/history/data', [InvoiceController::class, 'getHistoryData'])->name('invoices.history.data');
 
     Route::post('/save-invoice', [InvoiceController::class, 'store'])->name('invoices.store');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

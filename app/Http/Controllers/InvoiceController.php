@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 
 class InvoiceController extends Controller
 {
@@ -119,13 +121,59 @@ class InvoiceController extends Controller
         'message' => 'Invoice updated successfully'
     ]);
     }
-    public function history()
-    {
-        // সব invoices কে retrieve করা
-        $invoices = Invoice::with('items')->latest()->get();
+public function history()
+{
+    return view('history');
+}
 
-        return view('history', compact('invoices'));
+
+
+public function getHistoryData(Request $request)
+{
+    $query = Invoice::query();
+
+    if ($request->filled('bill_to')) {
+        $query->where('bill_to', 'like', '%' . $request->bill_to . '%');
     }
+
+    if ($request->filled('from_date')) {
+        $query->whereDate('invoice_date', '>=', $request->from_date);
+    }
+
+    if ($request->filled('to_date')) {
+        $query->whereDate('invoice_date', '<=', $request->to_date);
+    }
+
+    return DataTables::of($query)
+        ->editColumn('invoice_date', function ($invoice) {
+            return $invoice->invoice_date ? $invoice->invoice_date->format('d M, Y') : '';
+        })
+        ->editColumn('due_date', function ($invoice) {
+            return $invoice->due_date ? $invoice->due_date->format('d M, Y') : '';
+        })
+        ->addColumn('action', function ($invoice) {
+            $viewUrl = route('invoices.view', $invoice->id);
+            $editUrl = route('invoices.edit', $invoice->id);
+            $deleteUrl = route('invoices.destroy', $invoice->id);
+
+            return '
+                <a href="'.$viewUrl.'" class="btn btn-sm btn-primary">View</a>
+                <a href="'.$editUrl.'" class="btn btn-sm btn-info" title="Edit Invoice">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <form action="'.$deleteUrl.'" method="POST" class="d-inline-block delete-form" data-invoice-id="'.$invoice->id.'">
+                    '.csrf_field().method_field('DELETE').'
+                    <button type="submit" class="btn btn-sm btn-danger delete-btn" title="Delete Invoice">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            ';
+        })
+        ->rawColumns(['action'])
+        ->make(true);
+}
+
+
 
 
     public function destroy(Invoice $invoice)
