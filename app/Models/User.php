@@ -23,6 +23,18 @@ class User extends Authenticatable
         'password',
     ];
 
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function invoiceTitle()
+    {
+        return $this->hasOne(InvoiceTitle::class);
+    }
+
+
     /**
      * The attributes that should be hidden for serialization.
      *

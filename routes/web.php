@@ -26,13 +26,15 @@ Route::middleware('guest')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', function () {
-        return view('home');
-    })->middleware('auth');
 
+    Route::get('/', [InvoiceController::class, 'index'])->name('invoices.index');
     /* history */
-   Route::get('/history', [InvoiceController::class, 'history'])->name('invoices.history');
-Route::get('/history/data', [InvoiceController::class, 'getHistoryData'])->name('invoices.history.data');
+    Route::get('/history', [InvoiceController::class, 'history'])->name('invoices.history');
+    Route::get('/history/data', [InvoiceController::class, 'getHistoryData'])->name('invoices.history.data');
+
+    /* invoice title update */
+    Route::post('/invoice-titles/update', [App\Http\Controllers\InvoiceTitleController::class, 'updateField'])
+        ->name('invoiceTitles.updateField');
 
     Route::post('/save-invoice', [InvoiceController::class, 'store'])->name('invoices.store');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

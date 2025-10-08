@@ -76,25 +76,25 @@
 
             <div class="col-6 text-end">
                 <h2 class="fw-bold mb-3">INVOICE</h2>
-                <table class="table table-sm table-borderless ms-auto" style="max-width: 300px;">
+                <table class="table table-sm table-borderless ms-auto" style="max-width: 350px;">
                     <tr>
-                        <td class="fw-bold">Invoice #</td>
+                        <td class="fw-bold">{{ $invoiceTitles->invoice_number_title ?? 'Invoice #' }}</td>
                         <td>{{ $invoice->invoice_number }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-bold">Date</td>
+                        <td class="fw-bold">{{ $invoiceTitles->invoice_date_title ?? 'Date' }}</td>
                         <td>{{ $invoice->invoice_date->format('M d, Y') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-bold">Payment Terms</td>
+                        <td class="fw-bold">{{ $invoiceTitles->payment_terms_title ?? 'Payment Terms' }}</td>
                         <td>{{ $invoice->payment_terms }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-bold">Due Date</td>
+                        <td class="fw-bold">{{ $invoiceTitles->due_date_title ?? 'Due Date' }}</td>
                         <td>{{ $invoice->due_date->format('M d, Y') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-bold">PO Number</td>
+                        <td class="fw-bold">{{ $invoiceTitles->po_number_title ?? 'PO Number' }}</td>
                         <td>{{ $invoice->po_number }}</td>
                     </tr>
                 </table>
@@ -106,12 +106,12 @@
         <!-- Bill To / Ship To -->
         <div class="row mb-4">
             <div class="col-6">
-                <div class="fw-bold mb-1">Bill To</div>
+                <div class="fw-bold mb-1">{{ $invoiceTitles->bill_to_title ?? 'Bill To' }}</div>
                 <textarea class="form-control mb-2" rows="2" readonly>{{ $invoice->bill_to }}</textarea>
                 <div>Phone: {{ $invoice->phone_number }}</div>
             </div>
             <div class="col-6">
-                <div class="fw-bold mb-1">Ship To</div>
+                <div class="fw-bold mb-1">{{ $invoiceTitles->ship_to_title ?? 'Ship To' }}</div>
                 <textarea class="form-control" rows="2" readonly>{{ $invoice->ship_to }}</textarea>
             </div>
         </div>

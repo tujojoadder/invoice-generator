@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InvoiceTitle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -16,24 +17,39 @@ class AuthController extends Controller
     }
 
     // Register user
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-        ]);
+   public function register(Request $request)
+{
+    // Validate input
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users',
+        'password' => 'required|min:6',
+    ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+    // Create user
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+    ]);
 
-        Auth::login($user);
+    // Automatically create default InvoiceTitle for this user
+    InvoiceTitle::create([
+        'user_id' => $user->id,
+        'invoice_number_title' => 'Invoice #',
+        'invoice_date_title' => 'Date',
+        'payment_terms_title' => 'Payment Terms',
+        'due_date_title' => 'Due Date',
+        'po_number_title' => 'PO Number',
+        'bill_to_title' => 'Bill To',
+        'ship_to_title' => 'Ship To',
+    ]);
 
-        return redirect('/');
-    }
+    // Login user
+    Auth::login($user);
+
+    return redirect('/');
+}
 
     // Show login form
     public function showLoginForm()

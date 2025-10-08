@@ -32,17 +32,17 @@
                 </div>
                 <div class="col-6 text-end">
                     <h1 class="mb-3">INVOICE</h1>
-                    <table class="table table-sm table-borderless ms-auto" style="max-width: 300px;">
+                    <table class="table table-sm table-borderless ms-auto" style="max-width: 350px;">
                         <tr>
-                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
-                                    value="Invoice #">
+                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold invoice-title-input"
+                                 data-field="invoice_number_title"  value="{{ $invoiceTitles->invoice_number_title ?? 'Invoice #' }}">
                             </td>
                             <td><input type="text" class="form-control form-control-sm"
                                     value="{{ $invoice->invoice_number }}" id="invoiceNumber" readonly>
                             </td>
                         </tr>
                         <tr>
-                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold" value="Date">
+                            <td><input type="text" data-field="invoice_date_title" class="form-control form-control-sm border-0 fw-bold invoice-title-input" value="{{ $invoiceTitles->invoice_date_title ?? 'Date' }}">
                             </td>
                             <td><input type="date"
                                     value="{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}"
@@ -50,23 +50,23 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
-                                    value="Payment Terms"></td>
+                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold invoice-title-input"
+                                  data-field="payment_terms_title"  value="{{ $invoiceTitles->payment_terms_title ?? 'Payment Terms' }}"></td>
                             <td><input type="text" class="form-control form-control-sm"
                                     value="{{ $invoice->payment_terms }}" id="paymentTerms">
                             </td>
                         </tr>
                         <tr>
-                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
-                                    value="Due Date">
+                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold invoice-title-input"
+                                  data-field="due_date_title"   value="{{ $invoiceTitles->due_date_title ?? 'Due Date' }}">
                             </td>
                             <td><input type="date" class="form-control form-control-sm" id="dueDate"
                                     value="{{ \Carbon\Carbon::parse($invoice->due_date)->format('Y-m-d') }}">
                             </td>
                         </tr>
                         <tr>
-                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold"
-                                    value="PO Number">
+                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold invoice-title-input"
+                                  data-field="po_number_title"   value="{{ $invoiceTitles->po_number_title ?? 'PO Number' }}">
                             </td>
                             <td><input type="text" class="form-control form-control-sm" id="poNumber"
                                     value="{{ $invoice->po_number }}">
@@ -81,13 +81,13 @@
             <!-- Bill To / Ship To -->
             <div class="row mb-4">
                 <div class="col-6">
-                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold" value="Bill To">
+                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold invoice-title-input" data-field="bill_to_title" value="{{ $invoiceTitles->bill_to_title ?? 'Bill To' }}">
                     <textarea style="resize: none" class="form-control" rows="2" id="billTo" placeholder="who is this to?">{{ $invoice->bill_to }}</textarea>
-                    <input type="text" class="form-control form-control-sm mt-3" id="phoneNumber"
+                    <input type="text" class="form-control form-control-sm mt-3 " id="phoneNumber"
                         placeholder="Phone Number" value="{{ $invoice->phone_number }}">
                 </div>
                 <div class="col-6">
-                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold" value="Ship To">
+                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold invoice-title-input" data-field="ship_to_title" value="{{ $invoiceTitles->ship_to_title ?? 'Ship To' }}">
                     <textarea style="resize: none" class="form-control" rows="2" id="shipTo" placeholder="(optional)">{{ $invoice->ship_to }}</textarea>
                 </div>
             </div>
@@ -180,6 +180,29 @@
 
     <script>
         $(document).ready(function() {
+
+             /* keyup event */
+            $(document).on('keyup', '.invoice-title-input', function() {
+                let field = $(this).data('field');
+                let value = $(this).val();
+
+                // AJAX দিয়ে সার্ভারে পাঠানো
+                $.ajax({
+                    url: "{{ route('invoiceTitles.updateField') }}",
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        field: field,
+                        value: value
+                    },
+                    success: function(res) {
+                        console.log('Updated successfully:', field, value);
+                    },
+                    error: function(err) {
+                        console.error('Update failed:', err);
+                    }
+                });
+            });
 
 
             // Items array - this will store all invoice items

@@ -10,6 +10,12 @@ use Yajra\DataTables\Facades\DataTables;
 
 class InvoiceController extends Controller
 {
+    public function index()
+    {
+        $authUser = auth()->user();
+        $invoiceTitles = $authUser->invoiceTitle;
+        return view('home',compact('invoiceTitles'));
+    }
     public function store(Request $request)
     {
         // Validation
@@ -33,6 +39,7 @@ class InvoiceController extends Controller
 
         // Create invoice
         $invoice = Invoice::create([
+            'user_id'        => auth()->id(),
             'invoice_number' => $request->invoice_number,
             'from_company'   => $request->from_company,
             'bill_to'        => $request->bill_to,
@@ -191,12 +198,14 @@ public function getHistoryData(Request $request)
     public function edit(Invoice $invoice)
     {
         $invoice->load('items'); // Load related items
-        return view('edit_invoice', compact('invoice'));
+        $invoiceTitles = auth()->user()->invoiceTitle;
+        return view('edit_invoice', compact('invoice','invoiceTitles'));
     }
 
     public function view($id)
     {
         $invoice = Invoice::with('items')->findOrFail($id);
-        return view('invoices.view', compact('invoice'));
+        $invoiceTitles = auth()->user()->invoiceTitle;
+        return view('invoices.view', compact('invoice','invoiceTitles'));
     }
 }
