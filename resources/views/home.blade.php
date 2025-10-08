@@ -183,10 +183,10 @@
                         value: value
                     },
                     success: function(res) {
-                        console.log('Updated successfully:', field, value);
+                       /*  console.log('Updated successfully:', field, value); */
                     },
                     error: function(err) {
-                        console.error('Update failed:', err);
+                       /*  console.error('Update failed:', err); */
                     }
                 });
             });

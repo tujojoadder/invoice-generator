@@ -1,7 +1,51 @@
 @extends('layouts.app')
 
 @section('title', 'Home')
-
+<style>
+     @media print {
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        #invoiceContent {
+            padding: 20px !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        
+        /* Page break settings */
+        .table {
+            page-break-inside: auto;
+        }
+        
+        .table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        
+        .table thead {
+            display: table-header-group;
+        }
+        
+        .table tfoot {
+            display: table-footer-group;
+        }
+        
+        /* Remove unnecessary elements in print */
+        .btn, button {
+            display: none !important;
+        }
+    }
+    
+    /* For PDF generation */
+    .pdf-mode #invoiceContent {
+        padding: 30px 40px !important;
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 !important;
+    }
+</style>
 @section('content')
     <div class="container my-4" style="max-width: 950px;">
         <!-- 🔹 Top Action Buttons -->
@@ -11,7 +55,7 @@
             </a>
 
         </div>
-        <div id="invoiceContent" class="  rounded shadow p-5  border-top " >
+        <div id="invoiceContent" class="  rounded shadow p-5  border-top ">
 
             <!-- Header -->
             <div class="row mb-4">
@@ -34,15 +78,19 @@
                     <h1 class="mb-3">INVOICE</h1>
                     <table class="table table-sm table-borderless ms-auto" style="max-width: 350px;">
                         <tr>
-                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold invoice-title-input"
-                                 data-field="invoice_number_title"  value="{{ $invoiceTitles->invoice_number_title ?? 'Invoice #' }}">
+                            <td><input type="text"
+                                    class="form-control form-control-sm border-0 fw-bold invoice-title-input"
+                                    data-field="invoice_number_title"
+                                    value="{{ $invoiceTitles->invoice_number_title ?? 'Invoice #' }}">
                             </td>
                             <td><input type="text" class="form-control form-control-sm"
                                     value="{{ $invoice->invoice_number }}" id="invoiceNumber" readonly>
                             </td>
                         </tr>
                         <tr>
-                            <td><input type="text" data-field="invoice_date_title" class="form-control form-control-sm border-0 fw-bold invoice-title-input" value="{{ $invoiceTitles->invoice_date_title ?? 'Date' }}">
+                            <td><input type="text" data-field="invoice_date_title"
+                                    class="form-control form-control-sm border-0 fw-bold invoice-title-input"
+                                    value="{{ $invoiceTitles->invoice_date_title ?? 'Date' }}">
                             </td>
                             <td><input type="date"
                                     value="{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}"
@@ -50,23 +98,28 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold invoice-title-input"
-                                  data-field="payment_terms_title"  value="{{ $invoiceTitles->payment_terms_title ?? 'Payment Terms' }}"></td>
+                            <td><input type="text"
+                                    class="form-control form-control-sm border-0 fw-bold invoice-title-input"
+                                    data-field="payment_terms_title"
+                                    value="{{ $invoiceTitles->payment_terms_title ?? 'Payment Terms' }}"></td>
                             <td><input type="text" class="form-control form-control-sm"
                                     value="{{ $invoice->payment_terms }}" id="paymentTerms">
                             </td>
                         </tr>
                         <tr>
-                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold invoice-title-input"
-                                  data-field="due_date_title"   value="{{ $invoiceTitles->due_date_title ?? 'Due Date' }}">
+                            <td><input type="text"
+                                    class="form-control form-control-sm border-0 fw-bold invoice-title-input"
+                                    data-field="due_date_title" value="{{ $invoiceTitles->due_date_title ?? 'Due Date' }}">
                             </td>
                             <td><input type="date" class="form-control form-control-sm" id="dueDate"
                                     value="{{ \Carbon\Carbon::parse($invoice->due_date)->format('Y-m-d') }}">
                             </td>
                         </tr>
                         <tr>
-                            <td><input type="text" class="form-control form-control-sm border-0 fw-bold invoice-title-input"
-                                  data-field="po_number_title"   value="{{ $invoiceTitles->po_number_title ?? 'PO Number' }}">
+                            <td><input type="text"
+                                    class="form-control form-control-sm border-0 fw-bold invoice-title-input"
+                                    data-field="po_number_title"
+                                    value="{{ $invoiceTitles->po_number_title ?? 'PO Number' }}">
                             </td>
                             <td><input type="text" class="form-control form-control-sm" id="poNumber"
                                     value="{{ $invoice->po_number }}">
@@ -81,13 +134,15 @@
             <!-- Bill To / Ship To -->
             <div class="row mb-4">
                 <div class="col-6">
-                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold invoice-title-input" data-field="bill_to_title" value="{{ $invoiceTitles->bill_to_title ?? 'Bill To' }}">
+                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold invoice-title-input"
+                        data-field="bill_to_title" value="{{ $invoiceTitles->bill_to_title ?? 'Bill To' }}">
                     <textarea style="resize: none" class="form-control" rows="2" id="billTo" placeholder="who is this to?">{{ $invoice->bill_to }}</textarea>
                     <input type="text" class="form-control form-control-sm mt-3 " id="phoneNumber"
                         placeholder="Phone Number" value="{{ $invoice->phone_number }}">
                 </div>
                 <div class="col-6">
-                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold invoice-title-input" data-field="ship_to_title" value="{{ $invoiceTitles->ship_to_title ?? 'Ship To' }}">
+                    <input type="text" class="form-control mb-2 form-control-sm border-0 fw-bold invoice-title-input"
+                        data-field="ship_to_title" value="{{ $invoiceTitles->ship_to_title ?? 'Ship To' }}">
                     <textarea style="resize: none" class="form-control" rows="2" id="shipTo" placeholder="(optional)">{{ $invoice->ship_to }}</textarea>
                 </div>
             </div>
@@ -180,8 +235,13 @@
 
     <script>
         $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
-             /* keyup event */
+            /* keyup event */
             $(document).on('keyup', '.invoice-title-input', function() {
                 let field = $(this).data('field');
                 let value = $(this).val();
@@ -191,15 +251,15 @@
                     url: "{{ route('invoiceTitles.updateField') }}",
                     method: "POST",
                     data: {
-                        _token: "{{ csrf_token() }}",
+
                         field: field,
                         value: value
                     },
                     success: function(res) {
-                        console.log('Updated successfully:', field, value);
+                        /*   console.log('Updated successfully:', field, value); */
                     },
                     error: function(err) {
-                        console.error('Update failed:', err);
+                        /*  console.error('Update failed:', err); */
                     }
                 });
             });
@@ -462,42 +522,97 @@
 
 
             // Generate PDF
-            function generatePDF(button) {
-                const {
-                    jsPDF
-                } = window.jspdf;
+            // Generate PDF with proper margins
+function generatePDF(button) {
+    const { jsPDF } = window.jspdf;
+    
+    // Add pdf-mode class to body
+    $('body').addClass('pdf-mode');
+    
+    // Hide buttons temporarily
+    $('.btn, button').hide();
 
-                html2canvas($('#invoiceContent')[0], {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    width: $('#invoiceContent').outerWidth(),
-                    height: $('#invoiceContent').outerHeight()
-                }).then(canvas => {
-                    const pdf = new jsPDF('p', 'mm', 'a4');
-                    const imgWidth = 210;
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                    const pageHeight = 297;
-
-                    let heightLeft = imgHeight;
-                    let position = 0;
-
-                    const imgData = canvas.toDataURL('image/png');
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-
-                    while (heightLeft > 0) {
-                        position = heightLeft - imgHeight;
-                        pdf.addPage();
-                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                        heightLeft -= pageHeight;
-                    }
-
-                    pdf.save('invoice-' + $('#invoiceNumber').val() + '.pdf');
-                    button.prop('disabled', false).html(
-                        '<i class="fas fa-download me-1"></i> Download PDF');
-                });
+    html2canvas($('#invoiceContent')[0], {
+        scale: 2.5, // Higher quality
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: $('#invoiceContent').outerWidth(),
+        height: $('#invoiceContent').outerHeight()
+    }).then(canvas => {
+        // Remove pdf-mode class
+        $('body').removeClass('pdf-mode');
+        $('.btn, button').show();
+        
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        // A4 dimensions
+        const pageWidth = 210;
+        const pageHeight = 297;
+        
+        // Margins
+        const margin = 15; // 15mm margin on all sides
+        
+        // Calculate content area
+        const contentWidth = pageWidth - (margin * 2);
+        const contentHeight = pageHeight - (margin * 2);
+        
+        // Calculate scaled image dimensions
+        const imgWidth = contentWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        
+        let yPosition = margin;
+        let remainingHeight = imgHeight;
+        let sourceY = 0;
+        
+        while (remainingHeight > 0) {
+            // Calculate how much content fits on this page
+            const heightOnThisPage = Math.min(remainingHeight, contentHeight);
+            
+            // Calculate source dimensions for cropping
+            const sourceHeight = (heightOnThisPage / imgWidth) * canvas.width;
+            
+            // Create a temporary canvas for this page's content
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = sourceHeight;
+            
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(canvas, 
+                0, sourceY, // Source x, y
+                canvas.width, sourceHeight, // Source width, height
+                0, 0, // Dest x, y
+                canvas.width, sourceHeight // Dest width, height
+            );
+            
+            const pageImgData = tempCanvas.toDataURL('image/png', 1.0);
+            
+            // Add image to PDF
+            pdf.addImage(pageImgData, 'PNG', margin, yPosition, imgWidth, heightOnThisPage);
+            
+            // Update for next page
+            sourceY += sourceHeight;
+            remainingHeight -= heightOnThisPage;
+            
+            // Add new page if there's more content
+            if (remainingHeight > 0) {
+                pdf.addPage();
+                yPosition = margin;
             }
+        }
+
+        pdf.save('invoice-' + $('#invoiceNumber').val() + '.pdf');
+        button.prop('disabled', false).html('<i class="fas fa-download me-1"></i> Download PDF');
+    }).catch(error => {
+        console.error('PDF generation error:', error);
+        $('body').removeClass('pdf-mode');
+        $('.btn, button').show();
+        button.prop('disabled', false).html('<i class="fas fa-download me-1"></i> Download PDF');
+        alert('Failed to generate PDF. Please try again.');
+    });
+}
 
             // Reset
             $('#resetBtn').on('click', function() {
