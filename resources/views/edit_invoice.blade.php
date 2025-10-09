@@ -2,116 +2,109 @@
 
 @section('title', 'Home')
 <style>
-
     @media print {
-    /* =============================
-       1. শুধু Invoice দেখাবে, বাকি সব লুকানো
-    ============================= */
-    body * {
-        visibility: hidden;
+
+        /* শুধু Invoice দেখাবে, বাকি সব লুকানো */
+
+        body * {
+            visibility: hidden;
+        }
+
+        #invoiceContent,
+        #invoiceContent * {
+            visibility: visible;
+            color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+
+        /*     Invoice ঠিকভাবে পেইজে বসানো */
+
+        #invoiceContent {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 30px 40px !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+
+        /* ফর্ম ফিল্ড ডিজেবল করা */
+
+        #invoiceContent input,
+        #invoiceContent textarea,
+        #invoiceContent select,
+        #invoiceContent button,
+        #invoiceContent input[type="file"],
+        #invoiceContent label {
+            border: none !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            pointer-events: none !important;
+            color: inherit !important;
+
+            cursor: default !important;
+        }
+
+        /* Textarea রিসাইজ বন্ধ করা */
+
+        #invoiceContent textarea {
+            resize: none;
+        }
+
+        /* Date input এর পিকার/স্পিনার লুকানো */
+
+        #invoiceContent input[type="date"]::-webkit-inner-spin-button,
+        #invoiceContent input[type="date"]::-webkit-calendar-picker-indicator {
+            -webkit-appearance: none;
+            display: none;
+            margin: 0;
+        }
+
+        #invoiceContent input[type="date"]::-moz-inner-spin-button,
+        #invoiceContent input[type="date"]::-moz-calendar-picker-indicator {
+            display: none;
+        }
+
+
+        /*  Remove buttons, add buttons, tax rows লুকানো */
+
+        .remove-item,
+        #addItemBtn,
+        #taxRateRow,
+        #taxTypeRow,
+        .btn,
+        button {
+            display: none !important;
+
+        }
+
+
+        /* Table print settings */
+
+        .table {
+            page-break-inside: auto;
+            border-collapse: collapse !important;
+        }
+
+
+        .table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        .table thead {
+            display: table-header-group;
+        }
+
+        .table tfoot {
+            display: table-footer-group;
+        }
     }
-
-    #invoiceContent,
-    #invoiceContent * {
-        visibility: visible;
-        color-adjust: exact;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    /* =============================
-       2. Invoice ঠিকভাবে পেইজে বসানো
-    ============================= */
-    #invoiceContent {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        padding: 30px 40px !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-        border: none !important;
-    }
-
-    /* =============================
-       3. ফর্ম ফিল্ড ডিজেবল করা
-    ============================= */
-    #invoiceContent input,
-    #invoiceContent textarea,
-    #invoiceContent select,
-    #invoiceContent button,
-    #invoiceContent input[type="file"],
-    #invoiceContent label {
-        border: none !important;
-        background-color: transparent !important;
-        box-shadow: none !important;
-        pointer-events: none !important;
-        color: inherit !important;
-       
-        cursor: default !important;
-    }
-
-    /* =============================
-       4. Textarea রিসাইজ বন্ধ করা
-    ============================= */
-    #invoiceContent textarea {
-        resize: none;
-    }
-
-    /* =============================
-       5. Date input এর পিকার/স্পিনার লুকানো
-    ============================= */
-    #invoiceContent input[type="date"]::-webkit-inner-spin-button,
-    #invoiceContent input[type="date"]::-webkit-calendar-picker-indicator {
-        -webkit-appearance: none;
-        display: none;
-        margin: 0;
-    }
-
-    #invoiceContent input[type="date"]::-moz-inner-spin-button,
-    #invoiceContent input[type="date"]::-moz-calendar-picker-indicator {
-        display: none;
-    }
-
-    /* =============================
-       6. Remove buttons, add buttons, tax rows লুকানো
-    ============================= */
-    .remove-item,
-    #addItemBtn,
-    #taxRateRow,
-    #taxTypeRow,
-    .btn,
-    button {
-        display: none !important;
-        
-    }
-
-    /* যদি tax inputs/labels <tr> ভিতরে থাকে, পুরো <tr> hide করতে */
-
-
-
-    /* =============================
-       7. Table print settings
-    ============================= */
-    .table {
-        page-break-inside: auto;
-        border-collapse: collapse !important;
-    }
-
-   
-    .table tr {
-        page-break-inside: avoid;
-        page-break-after: auto;
-    }
-
-    .table thead {
-        display: table-header-group;
-    }
-
-    .table tfoot {
-        display: table-footer-group;
-    }
-}
 
 
 
@@ -123,7 +116,6 @@
         border: none !important;
         margin: 0 !important;
     }
-    
 </style>
 @section('content')
     <div class="container my-4" style="max-width: 950px;">
@@ -653,7 +645,7 @@
                     if (tr) tr.style.display = 'none';
                 });
                 /* add table border */
-                
+
 
                 // Generate canvas from the clone
                 html2canvas(clone, {
@@ -713,12 +705,12 @@
 
                     pdf.save('invoice-' + $('#invoiceNumber').val() + '.pdf');
                     button.prop('disabled', false).html(
-                    '<i class="fas fa-download me-1"></i> Download PDF');
+                        '<i class="fas fa-download me-1"></i> Download PDF');
                 }).catch(error => {
                     console.error('PDF generation error:', error);
                     clone.remove();
                     button.prop('disabled', false).html(
-                    '<i class="fas fa-download me-1"></i> Download PDF');
+                        '<i class="fas fa-download me-1"></i> Download PDF');
                     alert('Failed to generate PDF. Please try again.');
                 });
             }

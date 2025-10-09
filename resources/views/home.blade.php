@@ -3,8 +3,123 @@
 @section('title', 'Home')
 
 @section('content')
-    <div id="invoiceContent" class="  rounded shadow p-5  border-top " style="max-width: 900px; margin: 0 auto;">
+    <div id="invoiceContent" class="  rounded shadow p-5  " style="max-width: 900px; margin: 0 auto;">
 
+        <style>
+            @media print {
+
+        /* শুধু Invoice দেখাবে, বাকি সব লুকানো */
+
+        body * {
+            visibility: hidden;
+        }
+
+        #invoiceContent,
+        #invoiceContent * {
+            visibility: visible;
+            color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+
+        /*     Invoice ঠিকভাবে পেইজে বসানো */
+
+        #invoiceContent {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 30px 40px !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+
+        /* ফর্ম ফিল্ড ডিজেবল করা */
+
+        #invoiceContent input,
+        #invoiceContent textarea,
+        #invoiceContent select,
+        #invoiceContent button,
+        #invoiceContent input[type="file"],
+        #invoiceContent label {
+            border: none !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            pointer-events: none !important;
+            color: inherit !important;
+
+            cursor: default !important;
+        }
+
+        /* Textarea রিসাইজ বন্ধ করা */
+
+        #invoiceContent textarea {
+            resize: none;
+        }
+
+        /* Date input এর পিকার/স্পিনার লুকানো */
+
+        #invoiceContent input[type="date"]::-webkit-inner-spin-button,
+        #invoiceContent input[type="date"]::-webkit-calendar-picker-indicator {
+            -webkit-appearance: none;
+            display: none;
+            margin: 0;
+        }
+
+        #invoiceContent input[type="date"]::-moz-inner-spin-button,
+        #invoiceContent input[type="date"]::-moz-calendar-picker-indicator {
+            display: none;
+        }
+
+
+        /*  Remove buttons, add buttons, tax rows লুকানো */
+
+        .remove-item,
+        #addItemBtn,
+        #taxRateRow,
+        #taxTypeRow,
+        .btn,
+        button {
+            display: none !important;
+
+        }
+
+
+        /* Table print settings */
+
+        .table {
+            page-break-inside: auto;
+            border-collapse: collapse !important;
+        }
+
+
+        .table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        .table thead {
+            display: table-header-group;
+        }
+
+        .table tfoot {
+            display: table-footer-group;
+        }
+    }
+
+
+     /* For PDF generation */
+    .pdf-mode #invoiceContent {
+        padding: 30px 40px !important;
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 !important;
+    }
+
+        </style>
         <!-- Header -->
         <div class="row mb-4">
             <div class="col-6 ">
@@ -111,13 +226,13 @@
         <div class="row">
             <div class="col-7">
                 <strong>Notes</strong>
-                <textarea class="form-control mt-2" rows="4" id="notes" placeholder="Thank you for your business!"></textarea>
+                <textarea style="resize: none" class="form-control mt-2" rows="4" id="notes" placeholder="Thank you for your business!"></textarea>
             </div>
             <div class="col-5">
                 <table class="table table-sm">
 
                     {{-- Tax Type --}}
-                    <tr>
+                    <tr id="taxTypeRow">
                         <th style="width: 30%">
                             <label for="taxType" class="form-label small">Tax Type</label>
                         </th>
@@ -130,7 +245,7 @@
                     </tr>
 
                     {{-- Tax Rate --}}
-                    <tr>
+                    <tr id="taxRateRow">
                         <th style="width: 30%">
                             <label for="taxValue" class="form-label small" id="taxLabel">Tax Rate (%)</label>
                         </th>
@@ -444,37 +559,122 @@
                     jsPDF
                 } = window.jspdf;
 
-                html2canvas($('#invoiceContent')[0], {
-                    scale: 2,
+                // Disable the button while generating
+                button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Generating...');
+
+                // Target original invoice
+                const invoice = document.getElementById('invoiceContent');
+
+                // Clone the invoice node
+                const clone = invoice.cloneNode(true);
+                clone.id = 'invoiceClone'; // optional unique ID
+                clone.style.boxShadow = 'none';
+                clone.style.position = 'absolute';
+                clone.style.top = '-9999px'; // invisible off-screen
+                clone.style.left = '0';
+                clone.style.width = invoice.offsetWidth + 'px'; // keep original width
+                document.body.appendChild(clone);
+
+                // Clean up form-related elements inside the clone
+                const inputs = clone.querySelectorAll('input, textarea, select, button, label, input[type="file"]');
+                inputs.forEach(el => {
+                    el.style.setProperty('border', 'none', 'important');
+                    el.style.setProperty('background-color', 'transparent', 'important');
+                    el.style.setProperty('box-shadow', 'none', 'important');
+                    el.style.setProperty('padding', '0', 'important');
+                    el.style.pointerEvents = 'none';
+                    el.style.color = 'inherit';
+                    el.style.fontWeight = 'normal';
+                    el.style.cursor = 'default';
+                });
+
+                // ❌ Hide "Remove" buttons only
+                const removeButtons = clone.querySelectorAll('.remove-item');
+                removeButtons.forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                /* hide add button */
+                const addButton = clone.querySelector('#addItemBtn');
+                if (addButton) addButton.style.display = 'none';
+
+                // ❌ Hide Tax Type and Tax Rate rows
+                const taxRows = clone.querySelectorAll('#taxType, #taxValue, #taxLabel');
+                taxRows.forEach(el => {
+                    // hide both input/select and their parent <tr>
+                    const tr = el.closest('tr');
+                    if (tr) tr.style.display = 'none';
+                });
+                /* add table border */
+
+
+                // Generate canvas from the clone
+                html2canvas(clone, {
+                    scale: 2.5,
                     useCORS: true,
                     backgroundColor: '#ffffff',
-                    width: $('#invoiceContent').outerWidth(),
-                    height: $('#invoiceContent').outerHeight()
+                    logging: false,
+                    width: clone.offsetWidth,
+                    height: clone.offsetHeight
                 }).then(canvas => {
+                    // Remove clone after rendering
+                    clone.remove();
+
                     const pdf = new jsPDF('p', 'mm', 'a4');
-                    const imgWidth = 210;
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    const pageWidth = 210;
                     const pageHeight = 297;
+                    const margin = 15;
+                    const contentWidth = pageWidth - (margin * 2);
+                    const contentHeight = pageHeight - (margin * 2);
 
-                    let heightLeft = imgHeight;
-                    let position = 0;
+                    const imgWidth = contentWidth;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    const imgData = canvas.toDataURL('image/png', 1.0);
 
-                    const imgData = canvas.toDataURL('image/png');
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
+                    let yPosition = margin;
+                    let remainingHeight = imgHeight;
+                    let sourceY = 0;
 
-                    while (heightLeft > 0) {
-                        position = heightLeft - imgHeight;
-                        pdf.addPage();
-                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                        heightLeft -= pageHeight;
+                    while (remainingHeight > 0) {
+                        const heightOnThisPage = Math.min(remainingHeight, contentHeight);
+                        const sourceHeight = (heightOnThisPage / imgWidth) * canvas.width;
+
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = canvas.width;
+                        tempCanvas.height = sourceHeight;
+
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCtx.drawImage(
+                            canvas,
+                            0, sourceY,
+                            canvas.width, sourceHeight,
+                            0, 0,
+                            canvas.width, sourceHeight
+                        );
+
+                        const pageImgData = tempCanvas.toDataURL('image/png', 1.0);
+                        pdf.addImage(pageImgData, 'PNG', margin, yPosition, imgWidth, heightOnThisPage);
+
+                        sourceY += sourceHeight;
+                        remainingHeight -= heightOnThisPage;
+
+                        if (remainingHeight > 0) {
+                            pdf.addPage();
+                            yPosition = margin;
+                        }
                     }
 
                     pdf.save('invoice-' + $('#invoiceNumber').val() + '.pdf');
                     button.prop('disabled', false).html(
                         '<i class="fas fa-download me-1"></i> Download PDF');
+                }).catch(error => {
+                    console.error('PDF generation error:', error);
+                    clone.remove();
+                    button.prop('disabled', false).html(
+                        '<i class="fas fa-download me-1"></i> Download PDF');
+                    alert('Failed to generate PDF. Please try again.');
                 });
             }
+
 
             // Reset
             $('#resetBtn').on('click', function() {
