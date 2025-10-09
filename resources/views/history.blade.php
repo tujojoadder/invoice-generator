@@ -3,94 +3,146 @@
 @section('title', 'Invoice History')
 
 @section('content')
-<div class="container mt-4">
-    <h4 class="mb-3">Invoice History</h4>
+    <div class="container mt-4">
+        <h4 class="mb-3">Invoice History</h4>
 
-    {{-- Filters --}}
-    <div class="row mb-3">
-        <div class="col-md-4 mb-2">
-            <input type="text" id="searchCustomer" class="form-control" placeholder="Search by Customer Name (bill_to)">
+        {{-- Filters --}}
+        <div class="row mb-3">
+            <div class="col-md-4 mb-2">
+                <input type="text" id="searchCustomer" class="form-control" placeholder="Search by Customer Name (bill_to)">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="date" id="fromDate" class="form-control" placeholder="From Date">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="date" id="toDate" class="form-control" placeholder="To Date">
+            </div>
+            <div class="col-md-2 mb-2">
+                <button id="resetFilters" class="btn btn-secondary w-100">Reset</button>
+            </div>
         </div>
-        <div class="col-md-3 mb-2">
-            <input type="date" id="fromDate" class="form-control" placeholder="From Date">
-        </div>
-        <div class="col-md-3 mb-2">
-            <input type="date" id="toDate" class="form-control" placeholder="To Date">
-        </div>
-        <div class="col-md-2 mb-2">
-            <button id="resetFilters" class="btn btn-secondary w-100">Reset</button>
+
+        {{-- DataTable --}}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="invoiceTable" style="width: 100%;">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Invoice Number</th>
+                        <th>Customer Name</th>
+                        <th>Invoice Date</th>
+                        <th>Due Date</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
 
-    {{-- DataTable --}}
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped" id="invoiceTable" style="width: 100%;">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Invoice Number</th>
-                    <th>Customer Name</th>
-                    <th>Invoice Date</th>
-                    <th>Due Date</th>
-                    <th>Total</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-</div>
+    {{-- DataTables & Bootstrap --}}
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
-{{-- DataTables & Bootstrap --}}
-<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
 
-<script>
-$(document).ready(function () {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
-    // Initialize DataTable
-    let table = $('#invoiceTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: "{{ route('invoices.history.data') }}",
-            data: function (d) {
-                d.bill_to = $('#searchCustomer').val();
-                d.from_date = $('#fromDate').val();
-                d.to_date = $('#toDate').val();
-            }
-        },
-        columns: [
-            { data: 'id', name: 'id' },
-            { data: 'invoice_number', name: 'invoice_number' },
-            { data: 'bill_to', name: 'bill_to' },
-            { data: 'invoice_date', name: 'invoice_date' },
-            { data: 'due_date', name: 'due_date' },
-            { data: 'total', name: 'total' },
-            { data: 'action', name: 'action', orderable: false, searchable: false },
-        ],
-        lengthMenu: [10, 25, 50],
-        pagingType: 'simple', // Next / Previous only
-        order: [[0, 'desc']], // default sorting by ID desc
-        responsive: true,
-        language: {
-            processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
-        },
-      
-    });
+            // Use event delegation for dynamically rendered buttons
+            $('#invoiceTable').on('click', '.delete-btn', function() {
+                let button = $(this);
+                let url = button.data('url');
 
-    // Filters
-    $('#searchCustomer, #fromDate, #toDate').on('keyup change', function () {
-        table.ajax.reload();
-    });
+                if (!confirm('Are you sure you want to delete this invoice?')) return;
 
-    // Reset button
-    $('#resetFilters').on('click', function () {
-        $('#searchCustomer').val('');
-        $('#fromDate').val('');
-        $('#toDate').val('');
-        table.ajax.reload();
-    });
-});
-</script>
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    success: function(response) {
+                        $('#invoiceTable').DataTable().ajax.reload(null, false);
+                        alert(response.message); // will show "Invoice deleted successfully."
+                    },
+                    error: function(xhr) {
+                        console.error(xhr.responseText);
+                        alert('Failed to delete invoice. Please try again.');
+                    }
+                });
+            });
+
+
+            // Initialize DataTable
+            let table = $('#invoiceTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('invoices.history.data') }}",
+                    data: function(d) {
+                        d.bill_to = $('#searchCustomer').val();
+                        d.from_date = $('#fromDate').val();
+                        d.to_date = $('#toDate').val();
+                    }
+                },
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'invoice_number',
+                        name: 'invoice_number'
+                    },
+                    {
+                        data: 'bill_to',
+                        name: 'bill_to'
+                    },
+                    {
+                        data: 'invoice_date',
+                        name: 'invoice_date'
+                    },
+                    {
+                        data: 'due_date',
+                        name: 'due_date'
+                    },
+                    {
+                        data: 'total',
+                        name: 'total'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+                lengthMenu: [10, 25, 50],
+                pagingType: 'simple_numbers', // Next / Previous only
+                order: [
+                    [0, 'desc']
+                ], // default sorting by ID desc
+                responsive: true,
+                language: {
+                    processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
+                },
+
+            });
+
+            // Filters
+            $('#searchCustomer, #fromDate, #toDate').on('keyup change', function() {
+                table.ajax.reload();
+            });
+
+            // Reset button
+            $('#resetFilters').on('click', function() {
+                $('#searchCustomer').val('');
+                $('#fromDate').val('');
+                $('#toDate').val('');
+                table.ajax.reload();
+            });
+        });
+    </script>
 @endsection
