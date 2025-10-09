@@ -1,0 +1,129 @@
+/* ---------- Sidebar Container ---------- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 100vh;
+    background: linear-gradient(180deg, #1a1c2c 0%, #2b2f4c 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem 1rem;
+
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+}
+
+/* ---------- User Profile ---------- */
+.sidebar .user-info {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.sidebar .user-info img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s;
+}
+.sidebar .user-info img:hover {
+    transform: scale(1.1);
+}
+.sidebar .user-info h6 {
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+.sidebar .user-info small {
+    color: #c1c1c1;
+    font-size: 0.85rem;
+}
+
+/* ---------- Navigation ---------- */
+.sidebar .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    color: #b0b0b0;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+.sidebar .nav-link i {
+    width: 25px;
+}
+.sidebar .nav-link:hover {
+    background: #3b3f63;
+    color: #fff;
+    transform: translateX(4px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.sidebar .nav-link.active {
+    background: #5560aa;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.5);
+}
+
+/* ---------- Divider ---------- */
+.sidebar hr {
+    border-color: rgba(255,255,255,0.2);
+    margin: 1.5rem 0;
+}
+
+/* ---------- Settings Section ---------- */
+.sidebar .settings label {
+    font-size: 0.8rem;
+    color: #c1c1c1;
+    margin-bottom: 0.3rem;
+}
+.sidebar .settings .form-select {
+    background-color: #2b2f4c;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.4rem 0.5rem;
+}
+.sidebar .settings .form-select:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(85, 96, 170, 0.5);
+}
+.sidebar .settings button {
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+}
+.sidebar .settings button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.4);
+}
+
+/* ---------- Logout ---------- */
+.sidebar .logout button {
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    background: #e74c3c;
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.3s;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+.sidebar .logout button:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.5);
+}
