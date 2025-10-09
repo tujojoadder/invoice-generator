@@ -126,7 +126,7 @@
             </a>
 
         </div>
-        <div id="invoiceContent" class="  rounded shadow p-5 ">
+        <div id="invoiceContent" class="  rounded bg-light p-5 shadow-sm">
 
             <!-- Header -->
             <div class="row mb-4">

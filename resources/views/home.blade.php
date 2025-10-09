@@ -3,7 +3,7 @@
 @section('title', 'Home')
 
 @section('content')
-    <div id="invoiceContent" class="  rounded shadow p-5  " style="max-width: 900px; margin: 0 auto;">
+    <div id="invoiceContent" class="  rounded bg-light p-5 shadow-sm " style="max-width: 900px; margin: 0 auto;">
 
         <style>
             @media print {

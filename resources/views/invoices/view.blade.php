@@ -22,7 +22,7 @@
         </div>
 
         <!-- 🔹 Invoice Content -->
-        <div id="invoiceContent" class="rounded shadow p-5 border-top bg-white">
+        <div id="invoiceContent" class="rounded shadow-sm  p-5  bg-light">
             <style>
                 /* --- Common Styling --- */
                 #invoiceContent input,
