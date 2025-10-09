@@ -25,6 +25,8 @@ class InvoiceController extends Controller
             'invoice_date' => 'nullable|date',
             'due_date' => 'nullable|date',
             'logo' => 'required', // path or file
+            'bill_to' => 'required', 
+
 
         ]);
 
